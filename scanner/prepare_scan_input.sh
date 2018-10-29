@@ -20,8 +20,8 @@ HPC="cnaf"
 JOBFILE=job.cmd
 
 #use true to really submit jobs
-#PRODUCTION=false
-PRODUCTION=true
+PRODUCTION=false
+#PRODUCTION=true
 
 
 
@@ -34,8 +34,8 @@ foam_densities=1.0
 #ramps=($(awk 'BEGIN{for(i=0.25;i<=0.75;i+=0.25)print i}'))
 ramps=0.0
 
-centrals=($(awk 'BEGIN{for(i=2.5;i<=7.5;i+=2.5)print i}'))
-#centrals=0.5
+#centrals=($(awk 'BEGIN{for(i=2.5;i<=7.5;i+=2.5)print i}'))
+centrals=0.5
 #centrals=(2.0 4.0 8.0)
 
 #bulk_densities=($(awk 'BEGIN{for(i=20.0;i<=120.0;i+=20.0)print i}'))
@@ -44,18 +44,18 @@ bulk_densities=100.0
 #contams=($(awk 'BEGIN{for(i=0.05;i<=0.1;i+=0.01)print i}'))
 contams=0.1
 
-angles=($(awk 'BEGIN{for(i=0.0;i<=30.0;i+=15.0)print i}'))
-#angles=0.0
+#angles=($(awk 'BEGIN{for(i=0.0;i<=30.0;i+=15.0)print i}'))
+angles=0.0
 
-laser_anotes=($(awk 'BEGIN{for(i=10.0;i<=30.0;i+=10.0)print i}'))
-#laser_anotes=17.0
+#laser_anotes=($(awk 'BEGIN{for(i=10.0;i<=30.0;i+=10.0)print i}'))
+laser_anotes=17.0
 
-laser_lengths=($(awk 'BEGIN{for(i=25.0;i<=30.0;i+=5.0)print i}'))
-#laser_lengths=40.0
-
-
+#laser_lengths=($(awk 'BEGIN{for(i=25.0;i<=30.0;i+=5.0)print i}'))
+laser_lengths=40.0
 
 
+NCPU=($(awk 'BEGIN{for(i=1;i<=2;i*=2)print i}'))
+#NCPU=32
 
 
 
@@ -63,7 +63,8 @@ laser_lengths=($(awk 'BEGIN{for(i=25.0;i<=30.0;i+=5.0)print i}'))
 ## do not touch from here :) ##
 ###############################
 
-
+for n in ${NCPU[*]}
+do
 for pre in ${preplasmas[*]}
 do
 for f_dens in ${foam_densities[*]}
@@ -83,21 +84,21 @@ do
 for l_length in ${laser_lengths[*]}
 do
 
-echo "${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" >> sim_da_fare.txt
+echo "${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" >> sim_da_fare.txt
 INPUTFILE=input.nml
 
 if [ "$1" = "0" ]
 	then
-mkdir "${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}"
+mkdir "${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}"
 fi
 
-cd "${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" || return
+cd "${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" || return
 
 if [ "$1" = "0" ] ; then
 cp ../${JOBFILE} .
 fi
 
-NCPU=32
+#NCPU=32
 CREA_FILE_DUMP=0
 
 
@@ -222,7 +223,10 @@ fi
 #### MEGLIO CHE TUTTE LE SPECIE ABBIANO LO STESSO PESO
 
 
+#G_prof
+PROFILING_LASER=.true.
 #### t0, xc, wx, wy, a0,lam0 ## tutti in micrometri
+#aggiungere lp_delay, lp_offset, t1_lp, tau1_fwhm, w1_y, a1, lam1
 POSIZIONE_INIZIALE_PICCO_IMPULSO_LASER=$(bc -l <<< "scale=2;(${l_length}/2)")
 DISTANZA_INIZIALE_PICCO_IMPULSO_LASER_DAL_FUOCO=$(bc -l <<< "scale=2;(${l_length}/2)")
 LUNGHEZZA_LASER_TOTALE=${l_length}
@@ -230,7 +234,15 @@ WAIST_LASER=3.0
 PARAMETRO_ADIMENSIONALE_LASER_A0=${anote}
 LUNGHEZZA_ONDA_LASER=0.8
 
-
+#aggiunto 30/10/2018
+RITARDO_IMPULSO=20.59
+OFFSET_IMPULSO=0
+POSIZIONE_INIZIALE_PICCO_IMPULSO_SECONDO_LASER=200.0
+LUNGHEZZA_SECONDO_LASER_TOTALE=24.74
+#ci deve essere una relazione matematica da poter inserire
+WAIST_SECONDO_LASER=3.5
+PARAMETRO_ADIMENSIONALE_SECONDO_LASER_A0=0.45
+LUNGHEZZA_ONDA_SECONDO_LASER=0.4
 
 #### lx(1:7)
 SPESSORE_LAYER_FRONTALE=${pre}
@@ -252,7 +264,7 @@ INTERWIRE_DISTANCE=0.0
 #### inizio_targhetta = xc + wx/2 + lx7
 
 
-#### n/nc, n1/nc,n2/nc (tutte le densita' sono quindi rapportate alla densita' critica)
+#### n/nc, n1/nc,n2/nc (tutte le densita sono quindi rapportate alla densita critica)
 DENSITA_ELETTRONI_LAYER_FRONTALE=${f_dens}
 DENSITA_ELETTRONI_LAYER_CENTRALE=${c_dens}
 DENSITA_ELETTRONI_LAYER_POSTERIORE=10.0
@@ -265,7 +277,7 @@ NUMERO_OUTPUT_DENSITA_GRIGLIA=3
 NUMERO_OUTPUT_SPAZIOFASI_PARTICELLE=0
 NUMERO_OUTPUT_SPAZIOFASI_BUNCH=0
 
-#### X1-X0 seguenti definiscono quindi l'altezza del parallelepipedo (o rettangolo in 2D) di spazio da dumpare
+#### X1-X0 seguenti definiscono quindi l altezza del parallelepipedo (o rettangolo in 2D) di spazio da dumpare
 X0_TAGLIO_OUTPUT=0.0
 X1_TAGLIO_OUTPUT=100.0
 #### Il seguente valore invece definisce il semilato di base del parallelepipedo (o del rettangolo in 2D) dello spazio da dumpare
@@ -300,6 +312,21 @@ SYM_TYPE=1
 #### il seguente dato deve sempre essere <= 1.0
 COURANT_FRIEDRICHS_LEWY_PARAMETER=0.8
 
+
+#aggiunto 30/10/2018
+ABILITARE_TRACKING=.false.
+
+###TRACKING###
+INTERVALLO_ACQUISIZIONE=4
+TRACCIAMENTO_SALTI_PARTICELLA=8
+COORDINATA_LONGITUDINALE_INIZIALE_MINIMA=55.
+COORDINATA_LONGITUDINALE_INIZIALE_MASSIMA=75.
+COORDINATA_TRASVERSALE_INIZIALE_MINIMA_1=-80.
+COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_1=80.
+COORDINATA_TRASVERSALE_INIZIALE_MINIMA_2=-20
+COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_2=20
+TEMPO_INIZIO_TRACKING=0
+TEMPO_FINE_TRACKING=200
 
 
 
@@ -376,10 +403,24 @@ fi
 
 t0_lp=${DISTANZA_INIZIALE_PICCO_IMPULSO_LASER_DAL_FUOCO}
 xc_lp=${POSIZIONE_INIZIALE_PICCO_IMPULSO_LASER}
-w0_x=${LUNGHEZZA_LASER_TOTALE}
+tau_fwhm=${LUNGHEZZA_LASER_TOTALE}
 w0_y=${WAIST_LASER}
 a0=${PARAMETRO_ADIMENSIONALE_LASER_A0}
 lam0=${LUNGHEZZA_ONDA_LASER}
+
+
+#aggiunto 30/10/2018
+G_prof=${PROFILING_LASER}
+lp_delay=${RITARDO_IMPULSO}
+lp_offset=${OFFSET_IMPULSO}
+t1_lp=${POSIZIONE_INIZIALE_PICCO_IMPULSO_SECONDO_LASER}
+tau1_fwhm=${LUNGHEZZA_SECONDO_LASER_TOTALE}
+#ci deve essere una relazione matematica da poter inserire
+w1_y=${WAIST_SECONDO_LASER}
+a1=${PARAMETRO_ADIMENSIONALE_SECONDO_LASER_A0}
+lam1=${LUNGHEZZA_ONDA_SECONDO_LASER}
+
+
 
 
 lpx_1=$(echo "${SPESSORE_LAYER_FRONTALE}*1.0" | bc -l)
@@ -422,11 +463,34 @@ cfl=${COURANT_FRIEDRICHS_LEWY_PARAMETER}
 new_sim=$1
 id_new=$2
 dump=${CREA_FILE_DUMP}
-npe_yz=${NCPU}
+
+
+#aggiunto il 30/10/2018
+
+P_tracking=${ABILITARE_TRACKING}
+
+tkjump=${INTERVALLO_ACQUISIZIONE}
+nkjump=${TRACCIAMENTO_SALTI_PARTICELLA}
+txmin=${COORDINATA_LONGITUDINALE_INIZIALE_MINIMA}
+txmax=${COORDINATA_LONGITUDINALE_INIZIALE_MASSIMA}
+tymin=${COORDINATA_TRASVERSALE_INIZIALE_MINIMA_1}
+tymax=${COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_1}
+tzmin=${COORDINATA_TRASVERSALE_INIZIALE_MINIMA_2}
+tzmax=${COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_2}
+t_in=${TEMPO_INIZIO_TRACKING}
+t_out=${TEMPO_FINE_TRACKING}
+
+
+
+
+npe_yz=${n}
+
+
+
 
 
  if [ ! -f ./dumpRestart/dumpout000001.bin ] && [ "$1" = "1" ] ; then
-   echo "Missing dump files! Aborting submitting ${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length} !"
+   echo "Missing dump files! Aborting submitting ${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length} !"
    cd ..
    continue
  fi
@@ -507,18 +571,28 @@ npe_yz=${NCPU}
  printf ' lpy(1) = %s,\n' "$lpy_1"
  printf ' lpy(2) = %s,\n' "$lpy_2"
  printf ' n_over_nc = %s,\n' "${n_over_nc}"
- printf ' n1_over_n = %s,\n' "${n1_over_n}"
- printf ' n2_over_n = %s\n' "${n2_over_n}"
+ printf ' np1 = %s,\n' "${n1_over_n}"
+ printf ' np2 = %s\n' "${n2_over_n}"
  printf '/'
  printf '\n\n'
 
  printf '&LASER\n'
+ printf ' G_prof = %s,\n' "${G_prof}"
  printf ' t0_lp = %s,\n' "$t0_lp"
  printf ' xc_lp = %s,\n' "$xc_lp"
- printf ' w0_x = %s,\n' "$w0_x"
+ printf ' tau_fwhm = %s,\n' "$tau_fwhm"
  printf ' w0_y = %s,\n' "$w0_y"
  printf ' a0 = %s,\n' "$a0"
- printf ' lam0 = %s\n' "$lam0"
+ printf ' lam0 = %s,\n' "$lam0"
+
+ printf ' lp_delay = %s,\n' "$lp_delay"
+ printf ' lp_offset = %s,\n' "$lp_offset"
+ printf ' t0_lp = %s,\n' "$t0_lp"
+ printf ' tau1_fwhm = %s,\n' "$tau1_fwhm"
+ printf ' w1_y = %s,\n' "$w1_y"
+ printf ' a1 = %s,\n' "$a1"
+ printf ' lam1 = %s\n' "$lam1"
+
  printf '/'
  printf '\n\n'
 
@@ -546,9 +620,25 @@ npe_yz=${NCPU}
  printf ' cfl = %s,\n' "$cfl"
  printf ' new_sim = %s,\n' "${new_sim}"
  printf ' id_new = %s,\n' "${id_new}"
- printf ' dump = %s\n' "$dump"
+ printf ' dump = %s,\n' "$dump"
+ printf ' P_tracking = %s\n' "${P_tracking}"
  printf '/'
  printf '\n\n'
+
+ printf '&TRACKING\n'
+ printf ' tkjump = %s,\n' "${tkjump}"
+ printf ' nkjump = %s,\n' "${nkjump}"
+ printf ' txmin = %s,\n' "${txmin}"
+ printf ' txmax = %s,\n' "${txmax}"
+ printf ' tymin = %s,\n' "${tymin}"
+ printf ' tymax = %s,\n' "${tymax}"
+ printf ' tzmin = %s,\n' "${tzmin}"
+ printf ' tzmax = %s,\n' "${tzmax}"
+ printf ' t_in = %s,\n' "${t_in}"
+ printf ' t_out = %s\n' "${t_out}"
+ printf '/'
+ printf '\n\n'
+
 
  printf '&MPIPARAMS\n'
  printf ' nprocx = 1,\n'
@@ -579,5 +669,5 @@ done
 done
 done
 done
-
+done
 
