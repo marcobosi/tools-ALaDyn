@@ -53,17 +53,15 @@ laser_anotes=17.0
 #laser_lengths=($(awk 'BEGIN{for(i=25.0;i<=30.0;i+=5.0)print i}'))
 laser_lengths=40.0
 
-
-NCPU=($(awk 'BEGIN{for(i=1;i<=2;i*=2)print i}'))
-#NCPU=32
-
+#ncpu=($(awk 'BEGIN{for(i=1;i<=32;i*=2)print i}'))
+ncpu=32
 
 
 ###############################
 ## do not touch from here :) ##
 ###############################
 
-for n in ${NCPU[*]}
+for nproc in ${ncpu[*]}
 do
 for pre in ${preplasmas[*]}
 do
@@ -84,21 +82,21 @@ do
 for l_length in ${laser_lengths[*]}
 do
 
-echo "${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" >> sim_da_fare.txt
+echo "${nproc}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" >> sim_da_fare.txt
 INPUTFILE=input.nml
 
 if [ "$1" = "0" ]
 	then
-mkdir "${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}"
+mkdir "${nproc}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}"
 fi
 
-cd "${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" || return
+cd "${nproc}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length}" || return
 
 if [ "$1" = "0" ] ; then
 cp ../${JOBFILE} .
 fi
 
-#NCPU=32
+
 CREA_FILE_DUMP=0
 
 
@@ -223,10 +221,11 @@ fi
 #### MEGLIO CHE TUTTE LE SPECIE ABBIANO LO STESSO PESO
 
 
-#G_prof
-PROFILING_LASER=.true.
+#G_prof (se falso diventa cos^2)
+PROFILO_LASER_GAUSSIANO=.true.
+
 #### t0, xc, wx, wy, a0,lam0 ## tutti in micrometri
-#aggiungere lp_delay, lp_offset, t1_lp, tau1_fwhm, w1_y, a1, lam1
+#aggiunti lp_delay, lp_offset, t1_lp, tau1_fwhm, w1_y, a1, lam1
 POSIZIONE_INIZIALE_PICCO_IMPULSO_LASER=$(bc -l <<< "scale=2;(${l_length}/2)")
 DISTANZA_INIZIALE_PICCO_IMPULSO_LASER_DAL_FUOCO=$(bc -l <<< "scale=2;(${l_length}/2)")
 LUNGHEZZA_LASER_TOTALE=${l_length}
@@ -234,15 +233,13 @@ WAIST_LASER=3.0
 PARAMETRO_ADIMENSIONALE_LASER_A0=${anote}
 LUNGHEZZA_ONDA_LASER=0.8
 
-#aggiunto 30/10/2018
-RITARDO_IMPULSO=20.59
-OFFSET_IMPULSO=0
-POSIZIONE_INIZIALE_PICCO_IMPULSO_SECONDO_LASER=200.0
-LUNGHEZZA_SECONDO_LASER_TOTALE=24.74
-#ci deve essere una relazione matematica da poter inserire
-WAIST_SECONDO_LASER=3.5
-PARAMETRO_ADIMENSIONALE_SECONDO_LASER_A0=0.45
-LUNGHEZZA_ONDA_SECONDO_LASER=0.4
+RITARDO_IMPULSO=0.0
+OFFSET_IMPULSO=0.0
+POSIZIONE_INIZIALE_PICCO_IMPULSO_SECONDO_LASER=0.0
+LUNGHEZZA_SECONDO_LASER_TOTALE=0.0
+WAIST_SECONDO_LASER=0.0
+PARAMETRO_ADIMENSIONALE_SECONDO_LASER_A0=0.0
+LUNGHEZZA_ONDA_SECONDO_LASER=0.0
 
 #### lx(1:7)
 SPESSORE_LAYER_FRONTALE=${pre}
@@ -313,20 +310,19 @@ SYM_TYPE=1
 COURANT_FRIEDRICHS_LEWY_PARAMETER=0.8
 
 
-#aggiunto 30/10/2018
 ABILITARE_TRACKING=.false.
 
 ###TRACKING###
-INTERVALLO_ACQUISIZIONE=4
-TRACCIAMENTO_SALTI_PARTICELLA=8
-COORDINATA_LONGITUDINALE_INIZIALE_MINIMA=55.
-COORDINATA_LONGITUDINALE_INIZIALE_MASSIMA=75.
-COORDINATA_TRASVERSALE_INIZIALE_MINIMA_1=-80.
-COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_1=80.
-COORDINATA_TRASVERSALE_INIZIALE_MINIMA_2=-20
-COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_2=20
+INTERVALLO_ACQUISIZIONE=0
+TRACCIAMENTO_SALTI_PARTICELLA=0
+COORDINATA_LONGITUDINALE_INIZIALE_MINIMA=0.0
+COORDINATA_LONGITUDINALE_INIZIALE_MASSIMA=0.0
+COORDINATA_TRASVERSALE_INIZIALE_MINIMA_Y=0.0
+COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_Y=0.0
+COORDINATA_TRASVERSALE_INIZIALE_MINIMA_Z=0.0
+COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_Z=0.0
 TEMPO_INIZIO_TRACKING=0
-TEMPO_FINE_TRACKING=200
+TEMPO_FINE_TRACKING=0
 
 
 
@@ -409,13 +405,11 @@ a0=${PARAMETRO_ADIMENSIONALE_LASER_A0}
 lam0=${LUNGHEZZA_ONDA_LASER}
 
 
-#aggiunto 30/10/2018
-G_prof=${PROFILING_LASER}
+G_prof=${PROFILO_LASER}
 lp_delay=${RITARDO_IMPULSO}
 lp_offset=${OFFSET_IMPULSO}
 t1_lp=${POSIZIONE_INIZIALE_PICCO_IMPULSO_SECONDO_LASER}
 tau1_fwhm=${LUNGHEZZA_SECONDO_LASER_TOTALE}
-#ci deve essere una relazione matematica da poter inserire
 w1_y=${WAIST_SECONDO_LASER}
 a1=${PARAMETRO_ADIMENSIONALE_SECONDO_LASER_A0}
 lam1=${LUNGHEZZA_ONDA_SECONDO_LASER}
@@ -465,7 +459,6 @@ id_new=$2
 dump=${CREA_FILE_DUMP}
 
 
-#aggiunto il 30/10/2018
 
 P_tracking=${ABILITARE_TRACKING}
 
@@ -473,24 +466,24 @@ tkjump=${INTERVALLO_ACQUISIZIONE}
 nkjump=${TRACCIAMENTO_SALTI_PARTICELLA}
 txmin=${COORDINATA_LONGITUDINALE_INIZIALE_MINIMA}
 txmax=${COORDINATA_LONGITUDINALE_INIZIALE_MASSIMA}
-tymin=${COORDINATA_TRASVERSALE_INIZIALE_MINIMA_1}
-tymax=${COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_1}
-tzmin=${COORDINATA_TRASVERSALE_INIZIALE_MINIMA_2}
-tzmax=${COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_2}
+tymin=${COORDINATA_TRASVERSALE_INIZIALE_MINIMA_Y}
+tymax=${COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_Y}
+tzmin=${COORDINATA_TRASVERSALE_INIZIALE_MINIMA_Z}
+tzmax=${COORDINATA_TRASVERSALE_INIZIALE_MASSIMA_Z}
 t_in=${TEMPO_INIZIO_TRACKING}
 t_out=${TEMPO_FINE_TRACKING}
 
 
 
 
-npe_yz=${n}
+npe_yz=${nproc}
 
 
 
 
 
  if [ ! -f ./dumpRestart/dumpout000001.bin ] && [ "$1" = "1" ] ; then
-   echo "Missing dump files! Aborting submitting ${n}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length} !"
+   echo "Missing dump files! Aborting submitting ${nproc}_${angle}_${pre}_${f_dens}_${ramp}_${central}_${c_dens}_${contam}_${anote}_${l_length} !"
    cd ..
    continue
  fi
