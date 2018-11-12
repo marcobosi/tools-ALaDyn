@@ -157,34 +157,34 @@ densityplot::densityplot(std::string file_basename, std::string xaxis_name, std:
 Parameters::Parameters() {
   intpar.resize(20, 0);
   realpar.resize(20, 0.0);
-  phasespace_file_labels.push_back("prp");
-  phasespace_file_labels.push_back("hip");
+  phasespace_file_labels.push_back("prp");//protons phasespace
+  phasespace_file_labels.push_back("hip");//ions phasespace
   phasespace_file_labels.push_back("h1p");
   phasespace_file_labels.push_back("h2p");
   phasespace_file_labels.push_back("lip");
-  phasespace_file_labels.push_back("elp");
+  phasespace_file_labels.push_back("elp");//electron phasespace
   grid_file_labels.push_back("ienv");
   grid_file_labels.push_back("renv");
-  grid_file_labels.push_back("pren");
-  grid_file_labels.push_back("pden");
-  grid_file_labels.push_back("hidn");
-  grid_file_labels.push_back("hien");
+  grid_file_labels.push_back("pden");//proton density on grid
+  grid_file_labels.push_back("pren");//proton energy density on grid
+  grid_file_labels.push_back("hidn");//ion density on grid
+  grid_file_labels.push_back("hien");//ion energy density on grid
   grid_file_labels.push_back("h1dn");
   grid_file_labels.push_back("h1en");
   grid_file_labels.push_back("h2dn");
   grid_file_labels.push_back("h2en");
   grid_file_labels.push_back("lidn");
   grid_file_labels.push_back("lien");
-  grid_file_labels.push_back("eden");
-  grid_file_labels.push_back("elen");
-  grid_file_labels.push_back("bden");
-  grid_file_labels.push_back("ex");
+  grid_file_labels.push_back("eden");//electron density on grid
+  grid_file_labels.push_back("elen");//electron energy density on grid
+  grid_file_labels.push_back("bden");//bunch density on grid
+  grid_file_labels.push_back("ex");//electric field
   grid_file_labels.push_back("ey");
   grid_file_labels.push_back("ez");
-  grid_file_labels.push_back("bx");
+  grid_file_labels.push_back("bx");//magnetic field
   grid_file_labels.push_back("by");
   grid_file_labels.push_back("bz");
-  grid_file_labels.push_back("jx");
+  grid_file_labels.push_back("jx");//currents
   grid_file_labels.push_back("jy");
   grid_file_labels.push_back("jz");
   header_size_bytes = 0;

@@ -224,8 +224,8 @@ fi
 #G_prof (se falso diventa cos^2)
 PROFILO_LASER_GAUSSIANO=.true.
 
-#### t0, xc, wx, wy, a0,lam0 ## tutti in micrometri
-#aggiunti lp_delay, lp_offset, t1_lp, tau1_fwhm, w1_y, a1, lam1
+#### t0, xc, tau_fwhm, wy, a0,lam0 ## tutti in micrometri
+####lp_delay, lp_offset, t1_lp, tau1_fwhm, w1_y, a1, lam1
 POSIZIONE_INIZIALE_PICCO_IMPULSO_LASER=$(bc -l <<< "scale=2;(${l_length}/2)")
 DISTANZA_INIZIALE_PICCO_IMPULSO_LASER_DAL_FUOCO=$(bc -l <<< "scale=2;(${l_length}/2)")
 LUNGHEZZA_LASER_TOTALE=${l_length}
@@ -269,8 +269,8 @@ DENSITA_ELETTRONI_LAYER_POSTERIORE=10.0
 
 #### nf, nd, npv, end_p
 ####
-NUMERO_OUTPUT_CAMPI=1
-NUMERO_OUTPUT_DENSITA_GRIGLIA=3
+NUMERO_OUTPUT_CAMPI=0
+NUMERO_OUTPUT_DENSITA_GRIGLIA=0
 NUMERO_OUTPUT_SPAZIOFASI_PARTICELLE=0
 NUMERO_OUTPUT_SPAZIOFASI_BUNCH=0
 
